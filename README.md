@@ -40,7 +40,7 @@ let pathsToClean = [
 // the clean options to use
 let cleanOptions = {
   root:     '/full/webpack/root/path',
-  exclude:  ['shared.js'],
+  exclude:  ['shared.js', 'directory', '.css'],
   verbose:  true,
   dry:      false
 }
@@ -102,7 +102,7 @@ An [array] of string paths to clean
   // Instead of removing whole path recursively,
   // remove all path's content with exclusion of provided immediate children.
   // Good for not removing shared files from build directories.
-  exclude: [ 'files', 'to', 'ignore' ] 
+  exclude: [ 'files', 'directories', 'regex', 'to', 'ignore' ] 
 }
 ```
 

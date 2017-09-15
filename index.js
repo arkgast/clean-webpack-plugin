@@ -17,6 +17,20 @@ function upperCaseWindowsRoot(dir) {
   return splitPath.join(path.sep);
 }
 
+function walkSync(dir) {
+  var files = fs.readdirSync(dir),
+    filelist = [];
+  files.forEach(function(file) {
+    if (fs.statSync(dir + '/' + file).isDirectory()) {
+      filelist = walkSync(dir + '/' + file, filelist);
+    } else {
+      filelist.push(dir + '/' + file);
+    }
+  });
+  return filelist;
+}
+
+
 function CleanWebpackPlugin(paths, options) {
   //backwards compatibility
   if (typeof options === 'string') {
@@ -131,13 +145,17 @@ var clean = function() {
       try {
         var pathStat = fs.statSync(rimrafPath);
         if (pathStat.isDirectory()) {
-          childrenAfterExcluding = fs.readdirSync(rimrafPath)
+          childrenAfterExcluding = walkSync(rimrafPath)
             .filter(function(childFile) {
-              var include = _this.options.exclude.indexOf(childFile) < 0;
-              if (!include) {
+              childFile = childFile.replace(rimrafPath.concat('/'), '')
+              var include = _this.options.exclude.some(function(pathToExclude) {
+                var regex = new RegExp(pathToExclude, 'g');
+                return regex.test(childFile);
+              })
+              if (include) {
                 excludedChildren.push(childFile);
               }
-              return include;
+              return !include;
             })
             .map(function(file) {
               var fullPath = path.join(rimrafPath, file);
